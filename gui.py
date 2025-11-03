@@ -80,10 +80,3 @@ class GUI:
             self.root.geometry("450x300")
             self.entry.config(width=35)
             self.is_resized = False
-
-if __name__ == "__main__":
-    def dummy_command_handler(cmd):
-        print(f"Command received: {cmd}")
-
-    gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
-    gui.run()
