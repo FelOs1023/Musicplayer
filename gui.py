@@ -87,4 +87,3 @@ if __name__ == "__main__":
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
-    #test
