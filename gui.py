@@ -61,11 +61,9 @@ class GUI:
         if self.is_shown:
             self.root.withdraw()
             self.is_shown = False
-            #print("Gone")
         else:
             self.root.deiconify()
             self.is_shown=True
-            #print("there again")
 
     def Hotkey(self):
         if keyboard.is_pressed('F11'):
@@ -76,12 +74,10 @@ class GUI:
     def resize(self):
         if not self.is_resized:
             self.root.geometry("680x550")
-            #self.log_text.text.config(width=80, height=25)
             self.entry.config(width=60)
             self.is_resized = True
         else:
             self.root.geometry("450x300")
-            #self.log_text.text.config(width=52, height=10)
             self.entry.config(width=35)
             self.is_resized = False
 
