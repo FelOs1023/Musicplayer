@@ -25,21 +25,28 @@ class GUI:
                   text="Exit",
                   command=self.root.quit).grid(row=1,
                                                column=0,
-                                               pady=10, padx=150,
+                                               pady=10, padx=115,
                                                sticky='w')
 
         tk.Button(self.root,
                   text="Hide",
                   command=self.show_window).grid(row=1,
                                                  column=0,
-                                                 pady=10, padx=220,
+                                                 pady=10, padx=170,
                                                  sticky='w')
         
         tk.Button(self.root,
                   text="Resize",
                   command=self.resize).grid(row=1,
                                             column=0,
-                                            pady=10, padx=290,
+                                            pady=10, padx=230,
+                                            sticky='w')
+        
+        tk.Button(self.root,
+                  text="Settings",
+                  command=self.resize).grid(row=1,
+                                            column=0,
+                                            pady=10, padx=300,
                                             sticky='w')
 
         self.root.after(100, self.Hotkey)
@@ -87,4 +94,3 @@ if __name__ == "__main__":
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
-    #test
