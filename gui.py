@@ -1,6 +1,8 @@
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter import scrolledtext
 from tkinter import messagebox
+from tkinter import simpledialog
 import threading
 import keyboard
 #import config
@@ -14,44 +16,51 @@ class GUI:
         self.root.title(title)
         self.root.geometry("450x300")
 
+        #Eingabe Feld für Befehle
         self.entry = tk.Entry(self.root, width=35)
-        self.entry.grid(pady=10, padx=120, columnspan=2, sticky='w')
+        self.entry.pack(pady=10, padx=120, side=tk.TOP, fill=tk.X)
         self.entry.bind("<Return>", self.on_enter)
 
+        #Variablen für Fensterstatus
         self.is_shown = True
         self.is_resized = False
 
-        tk.Button(self.root,
+        #(1)
+        #Exit
+        ttk.Button(self.root,
                   text="Exit",
-                  command=self.root.quit).grid(row=1,
-                                               column=0,
-                                               pady=10, padx=115,
-                                               sticky='w')
+                  command=self.root.quit).pack(side="left",
+                                               pady=10, padx=5,
+                                               anchor=tk.NW,
+                                               fill=tk.X, expand=True)
 
-        tk.Button(self.root,
+        #Hide
+        ttk.Button(self.root,
                   text="Hide",
-                  command=self.show_window).grid(row=1,
-                                                 column=0,
-                                                 pady=10, padx=170,
-                                                 sticky='w')
+                  command=self.show_window).pack(side="left",
+                                                 pady=10, padx=5,
+                                                 anchor=tk.NW,
+                                                 fill=tk.X, expand=True)
         
-        tk.Button(self.root,
+        #Resize
+        ttk.Button(self.root,
                   text="Resize",
-                  command=self.resize).grid(row=1,
-                                            column=0,
-                                            pady=10, padx=230,
-                                            sticky='w')
+                  command=self.resize).pack(side="left",
+                                            pady=10, padx=5,
+                                            anchor=tk.NW,
+                                            fill=tk.X, expand=True)
         
-        tk.Button(self.root,
+        #Settings
+        ttk.Button(self.root,
                   text="Settings",
-                  command=self.resize).grid(row=1,
-                                            column=0,
-                                            pady=10, padx=300,
-                                            sticky='w')
+                  command=None).pack(side="left",
+                                            pady=10, padx=5,
+                                            anchor=tk.NW,
+                                            fill=tk.X, expand=True)
 
         self.root.after(100, self.Hotkey)
 
-
+    #Erstellt einen neuen Thread für den eingegebenen Befehl
     def on_enter(self, event=None):
         cmd = self.entry.get().strip()
         self.entry.delete(0, tk.END)
@@ -64,6 +73,7 @@ class GUI:
     def run(self):
         self.root.mainloop()
 
+    #Versteckt das Fenster oder lässt es wieder erscheinen (Fenster ist während es versteckt ist NICHT im Task-Manager sichtbar)
     def show_window(self):
         if self.is_shown:
             self.root.withdraw()
@@ -73,19 +83,22 @@ class GUI:
             self.is_shown=True
 
     def Hotkey(self):
-        if keyboard.is_pressed('F11'):
+        if keyboard.is_pressed('F11'):  #3
             self.show_window()
 
         self.root.after(75, self.Hotkey)
 
+    #Ändert die aktuelle Fenstergröße zwischen zwei voreingestellten Größen
     def resize(self):
         if not self.is_resized:
-            self.root.geometry("680x550")
-            self.entry.config(width=60)
+            new_width = simpledialog.askinteger("Breite eingeben", "Neue Breite:")
+            new_height = simpledialog.askinteger("Höhe eingeben", "Neue Höhe:")
+
+            if new_width and new_height:
+                self.root.geometry(f"{new_width}x{new_height}")
             self.is_resized = True
         else:
             self.root.geometry("450x300")
-            self.entry.config(width=35)
             self.is_resized = False
 
 if __name__ == "__main__":
@@ -94,3 +107,12 @@ if __name__ == "__main__":
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
+
+    #After (2), fill=tk.BOTH damit die Buttons etwas einfacher zu drücken sind  (1)
+    #Log Fenster einbauen  (2)
+    '''Einstellungs Fenster einbauen
+    -Hotkeys änderbar machen via Einstellungen  (3)
+    -Playlist Link hinzufügen/ändern/entfernen  (4)
+    -Playlist Tag bei Playlist hinzufügen  (5)
+    -
+    '''
