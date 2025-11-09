@@ -16,6 +16,9 @@ class GUI:
         self.root.title(title)
         self.root.geometry("450x300")
 
+        self.is_shown = True
+        self.is_resized = False
+
         #Log Fenster
         self.log = scrolledtext.ScrolledText(self.root,
                                              height=10, width=15,
@@ -32,10 +35,6 @@ class GUI:
         self.entry.pack(pady=10, padx=120, side=tk.TOP, fill=tk.X)
         self.entry.bind("<Return>", self.on_enter)
 
-        self.is_shown = True
-        self.is_resized = False
-
-        #(1)
         #Exit
         ttk.Button(self.root,
                   text="Exit",
