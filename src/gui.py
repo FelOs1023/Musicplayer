@@ -16,12 +16,21 @@ class GUI:
         self.root.title(title)
         self.root.geometry("450x300")
 
+        self.log = scrolledtext.ScrolledText(self.root,
+                                             height=10, width=15,
+                                             state='disabled',
+                                             wrap='word',
+                                             bg='black', fg='white')
+        self.log.pack(side='bottom',
+                      pady=5, padx=5,
+                      anchor="s",
+                      fill=tk.BOTH, expand=True)
+
         #Eingabe Feld für Befehle
         self.entry = tk.Entry(self.root, width=35)
         self.entry.pack(pady=10, padx=120, side=tk.TOP, fill=tk.X)
         self.entry.bind("<Return>", self.on_enter)
 
-        #Variablen für Fensterstatus
         self.is_shown = True
         self.is_resized = False
 
@@ -101,16 +110,30 @@ class GUI:
             self.root.geometry("450x300")
             self.is_resized = False
 
+    def log_tags(self):
+        self.log.tag_config('INFO', foreground='white')
+        self.log.tag_config('WARN', foreground='orange')
+        self.log.tag_config('ERROR', foreground='red')
+        self.log.tag_config('TIME', foreground='gray')
+
+    def log_message(self, message: str, level: str = 'INFO'):
+        timestamp = datetime.now().strftime("[%H:%M:%S]")
+        self.log.config(state='normal')
+        self.log.insert('end', f"{timestamp} ", 'TIME')
+        self.log.insert('end', f"{message}\n", level)
+        self.log.config(state='disabled')
+        self.log.yview('end')
+
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
-        print(f"Command received: {cmd}")
+        gui.log_message(f"Erkannter Musikbefehl: {cmd}", level='INFO')
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
 
-    #After (2), fill=tk.BOTH damit die Buttons etwas einfacher zu drücken sind  (1)
-    #Log Fenster einbauen  (2)
-    '''Einstellungs Fenster einbauen
+    '''After (2), fill=tk.BOTH damit die Buttons etwas einfacher zu drücken sind  (1)
+    Log Fenster einbauen  (2)
+    Einstellungs Fenster einbauen
     -Hotkeys änderbar machen via Einstellungen  (3)
     -Playlist Link hinzufügen/ändern/entfernen  (4)
     -Playlist Tag bei Playlist hinzufügen  (5)
