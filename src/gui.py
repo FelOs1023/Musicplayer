@@ -16,6 +16,7 @@ class GUI:
         self.root.title(title)
         self.root.geometry("450x300")
 
+        #Log Fenster
         self.log = scrolledtext.ScrolledText(self.root,
                                              height=10, width=15,
                                              state='disabled',
@@ -23,8 +24,8 @@ class GUI:
                                              bg='black', fg='white')
         self.log.pack(side='bottom',
                       pady=5, padx=5,
-                      anchor="s",
-                      fill=tk.BOTH, expand=True)
+                      anchor="center",
+                      fill=tk.X, expand=True)
 
         #Eingabe Feld für Befehle
         self.entry = tk.Entry(self.root, width=35)
@@ -126,7 +127,7 @@ class GUI:
 
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
-        gui.log_message(f"Erkannter Musikbefehl: {cmd}", level='INFO')
+        gui.log_message(f"Erkannter Befehl: {cmd}", level='INFO')
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
