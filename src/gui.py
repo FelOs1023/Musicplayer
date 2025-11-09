@@ -132,8 +132,7 @@ if __name__ == "__main__":
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
 
-    '''After (2), fill=tk.BOTH damit die Buttons etwas einfacher zu drücken sind  (1)
-    Log Fenster einbauen  (2)
+    '''
     Einstellungs Fenster einbauen
     -Hotkeys änderbar machen via Einstellungen  (3)
     -Playlist Link hinzufügen/ändern/entfernen  (4)
