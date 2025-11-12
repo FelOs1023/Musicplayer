@@ -126,7 +126,7 @@ class GUI:
 
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
-        gui.log_message(f"Erkannter Befehl: {cmd}", level='INFO')
+        gui.log_message(f"{cmd}", level='INFO')
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
