@@ -125,6 +125,30 @@ class GUI:
         self.log.config(state='disabled')
         self.log.yview('end')
 
+    def create_tag_playlist(self):
+        new_tag = simpledialog.askstring("Eingabe", "Gib einen Tag für die Playlist ein:")
+
+        new_playlist = simpledialog.askstring("Eingabe", "Gib den Link zu der Playlist ein:")
+
+        if new_tag and new_playlist:
+            saved_playlists = "Musicplayer/data/playlist.json"
+
+            try:
+                with open(saved_playlists, "r", encoding="utf-8") as f:
+                    daten = json.load(f)
+            except FileNotFoundError:
+                daten = {}
+
+            daten[new_tag] = new_playlist
+
+            with open(saved_playlists, "w", encoding="utf-8") as f:
+                json.dump(daten, f, ensure_ascii=False, indent=4)
+
+            gui.log_message("Tag und Link gespeichert", level='INFO')
+        else:
+            gui.log_message("Eingabe abgebrochen oder unvollständig")
+
+
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
         gui.log_message(f"{cmd}", level='INFO')
