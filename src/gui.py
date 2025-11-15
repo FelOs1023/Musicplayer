@@ -5,6 +5,18 @@ import json, os, keyboard, threading
 #import config
 from datetime import datetime
 
+CONFIG_FILE = "Musicplayer/data/playlist.json"
+
+def load_config():
+    if not os.path.exists(CONFIG_FILE):
+        return {}
+    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
+    
+def save_config(data: dict):
+    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4)
+
 class GUI:
     def __init__(self, command_handler, title="Command Window"):
         self.command_handler = command_handler
