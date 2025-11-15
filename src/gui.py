@@ -1,11 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter import scrolledtext
-from tkinter import messagebox
-from tkinter import simpledialog
-import threading
-import keyboard
-import json
+from tkinter import scrolledtext, messagebox, simpledialog, Toplevel
+import json, os, keyboard, threading
 #import config
 from datetime import datetime
 
@@ -32,7 +28,7 @@ class GUI:
                       fill=tk.X, expand=True)
 
         #Eingabe Feld für Befehle
-        self.entry = tk.Entry(self.root, width=35)
+        self.entry = ttk.Entry(self.root, width=35)
         self.entry.pack(pady=10, padx=120, side=tk.TOP, fill=tk.X)
         self.entry.bind("<Return>", self.on_enter)
 
@@ -63,10 +59,10 @@ class GUI:
         #Settings
         ttk.Button(self.root,
                   text="Settings",
-                  command=None).pack(side="left",
-                                            pady=10, padx=5,
-                                            anchor=tk.NW,
-                                            fill=tk.X, expand=True)
+                  command=self.open_settings_window).pack(side="left",
+                                                        pady=10, padx=5,
+                                                        anchor=tk.NW,
+                                                        fill=tk.X, expand=True)
 
         self.root.after(100, self.Hotkey)
 
@@ -148,6 +144,48 @@ class GUI:
         else:
             gui.log_message("Eingabe abgebrochen oder unvollständig")
 
+    def open_settings_window(self):
+        SettingsWindow(self.root)
+
+class SettingsWindow(tk.Toplevel):
+    def __init__(self, master):
+        super().__init__(master)
+        self.title("Settings")
+        self.geometry("300x370")
+
+        ttk.Label(self, text="Add Playlist").pack(pady=8,
+                                                  padx=5,
+                                                  anchor="n")
+
+        #Tag
+        ttk.Label(self,text="Music Tag").pack(pady=8,
+                                              padx=15,
+                                              anchor="nw")
+
+        ttk.Entry(self, width=25).pack(pady=4,
+                                       padx=10,
+                                       anchor="nw")
+        
+        #Link
+        ttk.Label(self, text="Music Link").pack(pady=4,
+                                                padx=10,
+                                                anchor="nw")
+        
+        ttk.Entry(self, width=40).pack(pady=4,
+                                       padx=10,
+                                       anchor="nw")
+        
+        #Buttons
+        ttk.Button(self, text="Safe", command=None).pack(pady=10,
+                                                         padx=5,
+                                                         side="right",
+                                                         anchor="n")
+        
+        ttk.Button(self, text="Close", command=self.destroy).pack(pady=10,
+                                                                  padx=5,
+                                                                  side="left",
+                                                                  anchor="n")
+
 
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
@@ -159,7 +197,6 @@ if __name__ == "__main__":
     '''
     Einstellungs Fenster einbauen
     -Hotkeys änderbar machen via Einstellungen  (3)
-    -Playlist Link hinzufügen/ändern/entfernen  (4)
-    -Playlist Tag bei Playlist hinzufügen  (5)
+    -Playlist Link ändern/entfernen  (4)
     -
     '''
