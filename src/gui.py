@@ -7,8 +7,6 @@ from datetime import datetime
 
 CONFIG_FILE = "Musicplayer/data/playlist.json"
 
-
-
 class GUI:
     def __init__(self, command_handler, title="Command Window"):
         self.command_handler = command_handler
@@ -159,7 +157,7 @@ class SettingsWindow(tk.Toplevel):
                              anchor="nw")
         
         #Buttons
-        ttk.Button(self, text="Safe", command=self.save_added_tag_list).pack(pady=10,
+        ttk.Button(self, text="Safe", command=self.save_added).pack(pady=10,
                                                          padx=5,
                                                          side="right",
                                                          anchor="n")
@@ -170,7 +168,7 @@ class SettingsWindow(tk.Toplevel):
                                                                   anchor="n")
         
 
-    def save_added_tag_list(self):
+    def save_added(self):
         new_tag = self.tag_entry.get().strip()
         new_playlist = self.link_entry.get().strip()
 
@@ -182,9 +180,12 @@ class SettingsWindow(tk.Toplevel):
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                     daten = json.load(f)
         except FileNotFoundError:
-                daten = {}
+                daten = {"PLAYLIST": {}, "HOTKEYS": {}}
 
-        daten[new_tag] = new_playlist
+        if "PLAYLIST" not in daten:
+            daten["PLAYLIST"] = {}
+
+        daten["PLAYLIST"][new_tag] = new_playlist
 
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(daten, f, ensure_ascii=False, indent=4)
@@ -207,5 +208,5 @@ if __name__ == "__main__":
     Einstellungs Fenster einbauen
     -Hotkeys änderbar machen via Einstellungen  (3)
     -Playlist Link ändern/entfernen  (4)
-    -
+    -Resize eingabe redesignen ähnlich zu Settings    (5)
     '''
