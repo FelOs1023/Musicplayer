@@ -41,13 +41,13 @@ class Play_Music:
         time.sleep(3)
 
     def Normal_Play(self):
-        PlayButton_location = pyautogui.locateOnScreen("Quick_Actions/Buttons/PlayButton.png", confidence=0.8)
+        PlayButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayButton.png", confidence=0.8)
         if PlayButton_location:
             pyautogui.moveTo(PlayButton_location)
             pyautogui.click()
 
     def Press_Option(self):
-        OptionButton_location = pyautogui.locateOnScreen("Quick_Actions/Buttons/OptionButton3.png", confidence=.8)
+        OptionButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/OptionButton3.png", confidence=.8)
         if OptionButton_location:
             center = pyautogui.center(OptionButton_location)
             pyautogui.moveTo(center)
@@ -55,27 +55,27 @@ class Play_Music:
             time.sleep(3)
 
     def Shuffle_Play(self):
-        ShuffleButton_location = pyautogui.locateOnScreen("Quick_Actions/Buttons/Shuffle.png", confidence=.8)
+        ShuffleButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/Shuffle.png", confidence=.8)
         if ShuffleButton_location:
             center = pyautogui.center(ShuffleButton_location)
             pyautogui.moveTo(center)
             pyautogui.click()
 
     def Player_Window(self):
-        Player_location = pyautogui.locateOnScreen("Quick_Actions/Buttons/PlayerWindow.png", confidence=.8)
+        Player_location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayerWindow.png", confidence=.8)
         if Player_location:
             center = pyautogui.center(Player_location)
             pyautogui.moveTo(center)
             pyautogui.click()
 
     def Open_Browser(self):
-        Browser_Location = pyautogui.locateOnScreen("Quick_Actions/Buttons/Chromium.png", confidence=.8)
+        Browser_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/Chromium.png", confidence=.8)
         if Browser_Location:
             pyautogui.moveTo(Browser_Location)
             pyautogui.click()
 
     def Shrink(self):
-        ShrinkButton_location = pyautogui.locateOnScreen("Quick_Actions/Buttons/Shrink.png", confidence=0.7)
+        ShrinkButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/Shrink.png", confidence=0.7)
         if ShrinkButton_location:
             center = pyautogui.center(ShrinkButton_location)
             pyautogui.moveTo(center)
