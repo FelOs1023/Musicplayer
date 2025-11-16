@@ -7,15 +7,7 @@ from datetime import datetime
 
 CONFIG_FILE = "Musicplayer/data/playlist.json"
 
-def load_config():
-    if not os.path.exists(CONFIG_FILE):
-        return {}
-    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
-    
-def save_config(data: dict):
-    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
+
 
 class GUI:
     def __init__(self, command_handler, title="Command Window"):
@@ -133,29 +125,6 @@ class GUI:
         self.log.config(state='disabled')
         self.log.yview('end')
 
-    def create_tag_playlist(self):
-        new_tag = simpledialog.askstring("Eingabe", "Gib einen Tag für die Playlist ein:")
-
-        new_playlist = simpledialog.askstring("Eingabe", "Gib den Link zu der Playlist ein:")
-
-        if new_tag and new_playlist:
-            saved_playlists = "Musicplayer/data/playlist.json"
-
-            try:
-                with open(saved_playlists, "r", encoding="utf-8") as f:
-                    daten = json.load(f)
-            except FileNotFoundError:
-                daten = {}
-
-            daten[new_tag] = new_playlist
-
-            with open(saved_playlists, "w", encoding="utf-8") as f:
-                json.dump(daten, f, ensure_ascii=False, indent=4)
-
-            gui.log_message("Tag und Link gespeichert", level='INFO')
-        else:
-            gui.log_message("Eingabe abgebrochen oder unvollständig")
-
     def open_settings_window(self):
         SettingsWindow(self.root)
 
@@ -165,30 +134,32 @@ class SettingsWindow(tk.Toplevel):
         self.title("Settings")
         self.geometry("300x370")
 
-        ttk.Label(self, text="Add Playlist").pack(pady=8,
-                                                  padx=5,
-                                                  anchor="n")
+        ttk.Label(self, text="Add Playlist", font=("Arial", 14)).pack(pady=8,
+                                                                      padx=5,
+                                                                      anchor="n")
 
         #Tag
-        ttk.Label(self,text="Music Tag").pack(pady=8,
-                                              padx=15,
-                                              anchor="nw")
+        ttk.Label(self,text="Music Tag", font=("Arial", 12)).pack(pady=8,
+                                                                  padx=15,
+                                                                  anchor="nw")
 
-        ttk.Entry(self, width=25).pack(pady=4,
-                                       padx=10,
-                                       anchor="nw")
+        self.tag_entry = ttk.Entry(self, width=25)
+        self.tag_entry.pack(pady=4,
+                            padx=10,
+                            anchor="nw")
         
         #Link
-        ttk.Label(self, text="Music Link").pack(pady=4,
-                                                padx=10,
-                                                anchor="nw")
+        ttk.Label(self, text="Music Link", font=("Arial", 12)).pack(pady=8,
+                                                                    padx=15,
+                                                                    anchor="nw")
         
-        ttk.Entry(self, width=40).pack(pady=4,
-                                       padx=10,
-                                       anchor="nw")
+        self.link_entry = ttk.Entry(self, width=40)
+        self.link_entry.pack(pady=4,
+                             padx=10,
+                             anchor="nw")
         
         #Buttons
-        ttk.Button(self, text="Safe", command=None).pack(pady=10,
+        ttk.Button(self, text="Safe", command=self.save_added_tag_list).pack(pady=10,
                                                          padx=5,
                                                          side="right",
                                                          anchor="n")
@@ -197,7 +168,33 @@ class SettingsWindow(tk.Toplevel):
                                                                   padx=5,
                                                                   side="left",
                                                                   anchor="n")
+        
 
+    def save_added_tag_list(self):
+        new_tag = self.tag_entry.get().strip()
+        new_playlist = self.link_entry.get().strip()
+
+        if not new_tag and not new_playlist:
+            gui.log_message("Error: Kein Inhalt", level='ERROR')
+            return
+        
+        try:
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                    daten = json.load(f)
+        except FileNotFoundError:
+                daten = {}
+
+        daten[new_tag] = new_playlist
+
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(daten, f, ensure_ascii=False, indent=4)
+
+            gui.log_message("Tag und Link gespeichert", level='INFO')
+
+        self.tag_entry.delete(0, 'end')
+        self.link_entry.delete(0, 'end')
+
+        self.tag_entry.focus()
 
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
