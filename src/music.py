@@ -1,138 +1,132 @@
 from playwright.sync_api import sync_playwright
-import time, os, pyautogui, threading
+import time, os, pyautogui, threading, json
 #import config
-from gui import GUI
+import gui
 
-PROFILE_DIR = os.path.join(os.getcwd(), "ytmusic_profile")
+CONFIG_FILE = "Musicplayer/data/playlist.json"
+PROFILE_PATH = None
 
-class Play_Music:
+def load_playlist():
+    try:
+        with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            daten = json.load(f)
+    except FileNotFoundError:
+        return {}
+    
+    return daten.get("PLAYLIST", {})
+
+class Music:
     def __init__(self):
         self.playwright = None
         self.browser = None
+        self.playlists = load_playlist()
+        self.player = Music()
 
     def start_browser(self):
         if not self.browser:
             self.playwright = sync_playwright().start()
             self.browser = self.playwright.chromium.launch_persistent_context(
-                user_data_dir=PROFILE_DIR,
+                user_data_dir=None,    #muss geändert. Soll auf profiles.json zeigen
                 headless=False,
                 args=[
                     "--start-maximized",
                     "--disable-blink-features=AutomationControlled"
                 ]
             )
-
-    def play_playlist(self, url: str, shuffle: bool = False):
+    
+    def play_playlist(self, url: str, shuffle: bool= False):
         self.start_browser()
         page = self.browser.new_page()
         page.goto(url)
         time.sleep(3)
 
         if shuffle:
-            self.Press_Option()
-            self.Shuffle_Play()
-            self.Shrink()
-            self.Player_Window()
+            self.press_option()
+            self.shuffle_play()
+            self.shrink()
+            self.player_window()
         else:
-            self.Normal_Play()
-            self.Shrink()
-            self.Player_Window()
+            self.normal_play()
+            self.shrink()
+            self.player_window()
 
         time.sleep(3)
-
-    def Normal_Play(self):
-        PlayButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayButton.png", confidence=0.8)
-        if PlayButton_location:
-            pyautogui.moveTo(PlayButton_location)
+    
+    def normal_play(self):
+        PlayButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayButton.png", confidence=.8)
+        if PlayButton_Location:
+            pyautogui.moveTo(PlayButton_Location)
             pyautogui.click()
 
-    def Press_Option(self):
-        OptionButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/OptionButton3.png", confidence=.8)
-        if OptionButton_location:
-            center = pyautogui.center(OptionButton_location)
+    def press_option(self):
+        OptionButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/OptionButton3.pn", confidence=.8)
+        if OptionButton_Location:
+            center = pyautogui.center(OptionButton_Location)
             pyautogui.moveTo(center)
             pyautogui.click()
-            time.sleep(3)
+            time.sleep(2)
 
-    def Shuffle_Play(self):
-        ShuffleButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/Shuffle.png", confidence=.8)
-        if ShuffleButton_location:
-            center = pyautogui.center(ShuffleButton_location)
-            pyautogui.moveTo(center)
-            pyautogui.click()
-
-    def Player_Window(self):
-        Player_location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayerWindow.png", confidence=.8)
-        if Player_location:
-            center = pyautogui.center(Player_location)
+    def shuffle_play(self):
+        ShuffleButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/Shuffle.png", confidence=.8)
+        if ShuffleButton_Location:
+            center = pyautogui.center(ShuffleButton_Location)
             pyautogui.moveTo(center)
             pyautogui.click()
 
-    def Open_Browser(self):
+    def player_window(self):
+        Player_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayerWindow.png", confidence=.7)
+        if Player_Location:
+            center = pyautogui.center(Player_Location)
+            pyautogui.moveTo(center)
+            pyautogui.click()
+
+    def open_browser(self):
         Browser_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/Chromium.png", confidence=.8)
         if Browser_Location:
             pyautogui.moveTo(Browser_Location)
             pyautogui.click()
 
-    def Shrink(self):
-        ShrinkButton_location = pyautogui.locateOnScreen("Musicplayer/assets/images/Shrink.png", confidence=0.7)
-        if ShrinkButton_location:
-            center = pyautogui.center(ShrinkButton_location)
-            pyautogui.moveTo(center)
+    def shrink(self):
+        ShrinkButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/Shrink.png", confidence=.7)
+        if ShrinkButton_Location:
+            pyautogui.moveTo(ShrinkButton_Location)
             pyautogui.click()
 
-    @staticmethod
-    def parse_command(command: str):
-        #Analysiert den Befehl 
+    def check_command(self, command: str):
         playlist_name = None
         shuffle = False
 
-        # Playlist erkennen
-        for name in config.PLAYLISTS:
-            if name in command:
-                playlist_name = name
+        #Erkennt Playlist namen
+        for input_name in self.playlists:
+            if input_name in command:
+                playlist_name = input_name
                 break
 
-        # Shuffle/Normal erkennen
-        if "shuffle" in command or "zufällig" in command:
+        #Erkennt Shuffle auswahl
+        if command in ["shuffle", "random", "zufall", "zufällig"]:
             shuffle = True
 
         return playlist_name, shuffle
-
-    def music_command(input):
-        player = Play_Music()
-
-        if input in ["stop", "exit", "beenden"]:
-            print("Programm beendet.")
+    
+    def music_command(self, command_input):
+        if command_input in ["stop", "exit", "beenden"] :
+            print("Programm beendet")
             return
         
-        if "speech" in input or "sprache" in input or "stimme" in input or "listen" in input:
-            input = speech_prog.SpeechListener().listen(gui, prompt="Bitte sprechen Sie Ihren Musikbefehl...")
-            if input:
-                gui.log_message(f"Erkannter Musikbefehl: {input}", level='INFO')
-            else:
-                gui.log_message("Kein Musikbefehl erkannt.", level='WARN')
-                return
-            
-        if input in ["eingabe", "option", "help", "commands"]:
-            gui.log_message(config.HELP_MUSIC, level='INFO')
+        if command_input in ["help", "option", "commands", "eingabe", "hilfe"]:
+            pass
+        
+        #Wirft den Input durch check_command und gibt das Ergebnis in die neuen Variablen
+        input_playlist_name, input_shuffle = self.player.check_command(command_input)
 
-        playlist_name, shuffle = player.parse_command(input)
-
-        if playlist_name:
-            url = config.PLAYLISTS[playlist_name]
-            player.play_playlist(url, shuffle=shuffle)
-            gui.log_message(f"Spiele: {playlist_name}", level='INFO')
-
-        if input in ["shrink", "klein", "weg", "gone"]:
-            player.Shrink()
-            gui.log_message("Browser verkleinert.", level='INFO')
-
-        if input in ["open", "öffnen", "browser"]:
-            player.Open_Browser()
-            gui.log_message("Browser geöffnet.", level='INFO')
+        if input_playlist_name:
+            url = self.playlists[input_playlist_name]
+            self.player.play_playlist(url, input_shuffle)
+            gui.GUI.log_message(f"Spiele: {input_playlist_name}", level='INFO')
+        else:
+            gui.GUI.log_message("Playlist nicht gefunden", level='ERROR')
 
 if __name__ == "__main__":
-    gui = GUI(command_handler=Play_Music.music_command, title="Music Player")
-    gui.run()
+    gui_manager = gui.GUI(command_handler=Music.music_command, title="Music Player")
+    gui_manager.run()
 
