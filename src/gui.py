@@ -178,17 +178,17 @@ class SettingsWindow(tk.Toplevel):
         
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                    daten = json.load(f)
+                    playlist_config = json.load(f)
         except FileNotFoundError:
-                daten = {"PLAYLIST": {}, "HOTKEYS": {}}
+                playlist_config = {"PLAYLIST": {}, "HOTKEYS": {}}
 
-        if "PLAYLIST" not in daten:
-            daten["PLAYLIST"] = {}
+        if "PLAYLIST" not in playlist_config:
+            playlist_config["PLAYLIST"] = {}
 
-        daten["PLAYLIST"][new_tag] = new_playlist
+        playlist_config["PLAYLIST"][new_tag] = new_playlist
 
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(daten, f, ensure_ascii=False, indent=4)
+            json.dump(playlist_config, f, ensure_ascii=False, indent=4)
 
             gui.log_message("Tag und Link gespeichert", level='INFO')
 
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
 
-    '''
+    '''  
     Einstellungs Fenster einbauen
     -Hotkeys änderbar machen via Einstellungen  (3)
     -Playlist Link ändern/entfernen  (4)
