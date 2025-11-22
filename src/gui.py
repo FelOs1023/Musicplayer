@@ -124,13 +124,14 @@ class GUI:
         self.log.yview('end')
 
     def open_settings_window(self):
-        SettingsWindow(self.root)
+        SettingsWindow(self.root, self)
 
 class SettingsWindow(tk.Toplevel):
-    def __init__(self, master):
+    def __init__(self, master, gui_ref):
         super().__init__(master)
         self.title("Settings")
         self.geometry("300x370")
+        self.gui = gui_ref
 
         ttk.Label(self, text="Add Playlist", font=("Arial", 14)).pack(pady=8,
                                                                       padx=5,
@@ -173,7 +174,7 @@ class SettingsWindow(tk.Toplevel):
         new_playlist = self.link_entry.get().strip()
 
         if not new_tag and not new_playlist:
-            gui.log_message("Error: Kein Inhalt", level='ERROR')
+            self.gui.log_message("Error: Kein Inhalt", level='ERROR')
             return
         
         try:
@@ -190,7 +191,7 @@ class SettingsWindow(tk.Toplevel):
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(playlist_config, f, ensure_ascii=False, indent=4)
 
-            gui.log_message("Tag und Link gespeichert", level='INFO')
+            self.gui.log_message("Tag und Link gespeichert", level='INFO')
 
         self.tag_entry.delete(0, 'end')
         self.link_entry.delete(0, 'end')
