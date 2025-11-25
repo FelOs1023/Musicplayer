@@ -3,3 +3,4 @@ data/
 config/config.json
 
 src/__pycache__
+src/To-Do_Errors
