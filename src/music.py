@@ -135,4 +135,3 @@ if __name__ == "__main__":
     player = Music()
     gui_manager = gui.GUI(command_handler=player.music_command, title="Music Player")
     gui_manager.run()
-

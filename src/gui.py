@@ -205,9 +205,3 @@ if __name__ == "__main__":
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
 
-    '''  
-    Einstellungs Fenster einbauen
-    -Hotkeys änderbar machen via Einstellungen  (3)
-    -Playlist Link ändern/entfernen  (4)
-    -Resize eingabe redesignen ähnlich zu Settings    (5)
-    '''
