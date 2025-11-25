@@ -4,7 +4,9 @@ import time, os, pyautogui, threading, json
 import gui
 
 CONFIG_FILE = "Musicplayer/data/playlist.json"
-PROFILE_PATH = None
+
+PROFILE_DIR = os.path.join("Musicplayer", "data", "ytmusic_profile")
+os.makedirs(PROFILE_DIR, exist_ok=True)
 
 def load_playlist():
     try:
@@ -20,13 +22,13 @@ class Music:
         self.playwright = None
         self.browser = None
         self.playlists = load_playlist()
-        self.player = Music()
+        self.player = self
 
     def start_browser(self):
         if not self.browser:
             self.playwright = sync_playwright().start()
             self.browser = self.playwright.chromium.launch_persistent_context(
-                user_data_dir=None,    #muss geändert. Soll auf profiles.json zeigen
+                user_data_dir=PROFILE_DIR,
                 headless=False,
                 args=[
                     "--start-maximized",
@@ -44,10 +46,12 @@ class Music:
             self.press_option()
             self.shuffle_play()
             self.shrink()
+            time.sleep(1)
             self.player_window()
         else:
             self.normal_play()
             self.shrink()
+            time.sleep(1)
             self.player_window()
 
         time.sleep(3)
@@ -59,7 +63,7 @@ class Music:
             pyautogui.click()
 
     def press_option(self):
-        OptionButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/OptionButton3.pn", confidence=.8)
+        OptionButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/OptionButton3.png", confidence=.8)
         if OptionButton_Location:
             center = pyautogui.center(OptionButton_Location)
             pyautogui.moveTo(center)
@@ -96,14 +100,15 @@ class Music:
         playlist_name = None
         shuffle = False
 
-        #Erkennt Playlist namen
+        #Erkennt Playlist Namen
         for input_name in self.playlists:
             if input_name in command:
                 playlist_name = input_name
                 break
 
-        #Erkennt Shuffle auswahl
-        if command in ["shuffle", "random", "zufall", "zufällig"]:
+        #Erkennt Shuffle Auswahl
+        shuffle_keywords = ["shuffle", "random", "zufall", "zufällig"]
+        if any(word in command.lower() for word in shuffle_keywords):
             shuffle = True
 
         return playlist_name, shuffle
@@ -121,12 +126,13 @@ class Music:
 
         if input_playlist_name:
             url = self.playlists[input_playlist_name]
-            self.player.play_playlist(url, input_shuffle)
-            gui.GUI.log_message(f"Spiele: {input_playlist_name}", level='INFO')
+            self.player.play_playlist(url, shuffle=input_shuffle)
+            gui_manager.log_message(f"Spiele: {input_playlist_name}", level='INFO')
         else:
-            gui.GUI.log_message("Playlist nicht gefunden", level='ERROR')
+            gui_manager.log_message("Playlist nicht gefunden", level='ERROR')
 
 if __name__ == "__main__":
-    gui_manager = gui.GUI(command_handler=Music.music_command, title="Music Player")
+    player = Music()
+    gui_manager = gui.GUI(command_handler=player.music_command, title="Music Player")
     gui_manager.run()
 
