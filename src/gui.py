@@ -53,10 +53,10 @@ class GUI:
         #Resize
         ttk.Button(self.root,
                   text="Resize",
-                  command=self.resize).pack(side="left",
-                                            pady=10, padx=5,
-                                            anchor=tk.NW,
-                                            fill=tk.X, expand=True)
+                  command=self.open_resize_window).pack(side="left",
+                                                        pady=10, padx=5,
+                                                        anchor=tk.NW,
+                                                        fill=tk.X, expand=True)
         
         #Settings
         ttk.Button(self.root,
@@ -126,6 +126,9 @@ class GUI:
     def open_settings_window(self):
         SettingsWindow(self.root, self)
 
+    def open_resize_window(self):
+        Resize_Window(self.root, self)
+
 class SettingsWindow(tk.Toplevel):
     def __init__(self, master, gui_ref):
         super().__init__(master)
@@ -158,10 +161,9 @@ class SettingsWindow(tk.Toplevel):
                              anchor="nw")
         
         #Buttons
-        ttk.Button(self, text="Safe", command=self.save_added).pack(pady=10,
-                                                         padx=5,
-                                                         side="right",
-                                                         anchor="n")
+        ttk.Button(self, text="Safe", command=self.save_added).pack(pady=10,padx=5,
+                                                                    side="right",
+                                                                    anchor="n")
         
         ttk.Button(self, text="Close", command=self.destroy).pack(pady=10,
                                                                   padx=5,
@@ -197,6 +199,73 @@ class SettingsWindow(tk.Toplevel):
         self.link_entry.delete(0, 'end')
 
         self.tag_entry.focus()
+
+class Resize_Window(tk.Toplevel):
+    def __init__(self, master, gui_ref):
+        super().__init__(master)
+        self.title("Resize Window")
+        self.geometry("250x250")
+        self.gui = gui_ref
+
+        ttk.Label(self, text="Enter new Size", font=("Arial", 14)).pack(pady=8,
+                                                                        padx=5,
+                                                                        anchor="n")
+
+        #Width
+        ttk.Label(self,text="Width", font=("Arial", 12)).pack(pady=8,
+                                                              padx=15,
+                                                              anchor="nw")
+        
+        self.width_entry = ttk.Entry(self, width=25)
+        self.width_entry.pack(pady=4,
+                              padx=10,
+                              anchor="nw")
+        
+        #Height
+        ttk.Label(self, text="Height", font=("Arial", 12)).pack(pady=8,
+                                                                padx=15,
+                                                                anchor="nw")
+        
+        self.height_entry = ttk.Entry(self, width=25)
+        self.height_entry.pack(pady=4,
+                               padx=10,
+                               anchor="nw")
+        
+        ttk.Button(self, text="Safe", command=self.save_resize).pack(pady=10,padx=5,
+                                                                     side="right",
+                                                                     anchor="n")
+        
+        ttk.Button(self, text="Close", command=self.destroy).pack(pady=10,padx=5,
+                                                                  side="left",
+                                                                  anchor="n")
+        
+        ttk.Button(self, text="Reset", command=self.reset_resize).pack(pady=10,padx=5,
+                                                                       side="bottom",
+                                                                       anchor="n")
+        
+    def save_resize(self):
+        new_width = self.width_entry.get().strip()
+        new_height = self.height_entry.get().strip()
+
+        if not new_width.isdigit() or not new_height.isdigit():
+            self.gui.log_message("Error: Ungültige Eingabe", level='ERROR')
+            return
+
+        self.gui.root.geometry(f"{new_width}x{new_height}")
+        self.gui.log_message("Fenstergröße geändert", level='INFO')
+
+        self.width_entry.delete(0, 'end')
+        self.height_entry.delete(0, 'end')
+
+        #self.destroy()
+
+    def reset_resize(self):
+        self.gui.root.geometry("450x300")
+        self.gui.log_message("Fenstergröße auf Standard zurückgesetzt", level='INFO')
+        self.width_entry.delete(0, 'end')
+        self.height_entry.delete(0, 'end')
+
+
 
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
