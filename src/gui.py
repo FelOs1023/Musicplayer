@@ -16,23 +16,14 @@ class GUI:
         self.root.geometry("450x300")
 
         self.is_shown = True
-        self.is_resized = False
-
-        #Log Fenster
-        self.log = scrolledtext.ScrolledText(self.root,
-                                             height=10, width=15,
-                                             state='disabled',
-                                             wrap='word',
-                                             bg='black', fg='white')
-        self.log.pack(side='bottom',
-                      pady=5, padx=5,
-                      anchor="center",
-                      fill=tk.X, expand=True)
 
         #Eingabe Feld für Befehle
         self.entry = ttk.Entry(self.root, width=35)
         self.entry.pack(pady=10, padx=120, side=tk.TOP, fill=tk.X)
         self.entry.bind("<Return>", self.on_enter)
+
+        #Log Bereich
+        self.log_section = LogSection(self.root)
 
         #Exit
         ttk.Button(self.root,
@@ -96,38 +87,42 @@ class GUI:
 
         self.root.after(75, self.Hotkey)
 
-    #Ändert die aktuelle Fenstergröße zwischen zwei voreingestellten Größen
-    def resize(self):
-        if not self.is_resized:
-            new_width = simpledialog.askinteger("Breite eingeben", "Neue Breite:")
-            new_height = simpledialog.askinteger("Höhe eingeben", "Neue Höhe:")
 
-            if new_width and new_height:
-                self.root.geometry(f"{new_width}x{new_height}")
-            self.is_resized = True
-        else:
-            self.root.geometry("450x300")
-            self.is_resized = False
-
-    def log_tags(self):
-        self.log.tag_config('INFO', foreground='white')
-        self.log.tag_config('WARN', foreground='orange')
-        self.log.tag_config('ERROR', foreground='red')
-        self.log.tag_config('TIME', foreground='gray')
-
-    def log_message(self, message: str, level: str = 'INFO'):
-        timestamp = datetime.now().strftime("[%H:%M:%S]")
-        self.log.config(state='normal')
-        self.log.insert('end', f"{timestamp} ", 'TIME')
-        self.log.insert('end', f"{message}\n", level)
-        self.log.config(state='disabled')
-        self.log.yview('end')
+    def log_message(self, message, level='INFO'):
+        self.log_section.logging(message, level)
 
     def open_settings_window(self):
         SettingsWindow(self.root, self)
 
     def open_resize_window(self):
         Resize_Window(self.root, self)
+
+class LogSection():
+    def __init__(self, master: tk.Widget):
+        self.log = scrolledtext.ScrolledText(master,
+                                             height=10, width=15,
+                                             state='disabled',
+                                             wrap='word',
+                                             bg='black', fg='white')
+        self.log.pack(side='bottom',
+                      pady=5, padx=5,
+                      anchor="center",
+                      fill=tk.X, expand=True)
+        self.log_tags()
+        
+    def log_tags(self):
+        self.log.tag_config('INFO', foreground='white')
+        self.log.tag_config('WARN', foreground='orange')
+        self.log.tag_config('ERROR', foreground='red')
+        self.log.tag_config('TIME', foreground='gray')
+
+    def logging(self, message: str, level: str = 'INFO'):
+        timestamp = datetime.now().strftime("[%H:%M:%S]")
+        self.log.config(state='normal')
+        self.log.insert('end', f"{timestamp} ", 'TIME')
+        self.log.insert('end', f"{message}\n", level)
+        self.log.config(state='disabled')
+        self.log.yview('end')
 
 class SettingsWindow(tk.Toplevel):
     def __init__(self, master, gui_ref):
@@ -178,12 +173,16 @@ class SettingsWindow(tk.Toplevel):
         if not new_tag and not new_playlist:
             self.gui.log_message("Error: Kein Inhalt", level='ERROR')
             return
-        
+                
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                     playlist_config = json.load(f)
         except FileNotFoundError:
                 playlist_config = {"PLAYLIST": {}, "HOTKEYS": {}}
+
+        if new_tag in playlist_config.get("PLAYLIST", {}):
+            self.gui.log_message("Error: Tag bereits vorhanden", level='ERROR')
+            return
 
         if "PLAYLIST" not in playlist_config:
             playlist_config["PLAYLIST"] = {}
