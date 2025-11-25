@@ -87,7 +87,7 @@ class GUI:
 
         self.root.after(75, self.Hotkey)
 
-
+    #Button Funktionen
     def log_message(self, message, level='INFO'):
         self.log_section.logging(message, level)
 
@@ -112,9 +112,10 @@ class LogSection():
         
     def log_tags(self):
         self.log.tag_config('INFO', foreground='white')
-        self.log.tag_config('WARN', foreground='orange')
         self.log.tag_config('ERROR', foreground='red')
         self.log.tag_config('TIME', foreground='gray')
+        self.log.tag_config('DEBUG', foreground='blue')
+        self.log.tag_config('SUCCESS', foreground='green')
 
     def logging(self, message: str, level: str = 'INFO'):
         timestamp = datetime.now().strftime("[%H:%M:%S]")
@@ -164,14 +165,13 @@ class SettingsWindow(tk.Toplevel):
                                                                   padx=5,
                                                                   side="left",
                                                                   anchor="n")
-        
 
     def save_added(self):
         new_tag = self.tag_entry.get().strip()
         new_playlist = self.link_entry.get().strip()
 
         if not new_tag and not new_playlist:
-            self.gui.log_message("Error: Kein Inhalt", level='ERROR')
+            self.gui.log_message("Ungültige Eingabe", level='ERROR')
             return
                 
         try:
@@ -181,7 +181,13 @@ class SettingsWindow(tk.Toplevel):
                 playlist_config = {"PLAYLIST": {}, "HOTKEYS": {}}
 
         if new_tag in playlist_config.get("PLAYLIST", {}):
-            self.gui.log_message("Error: Tag bereits vorhanden", level='ERROR')
+            self.gui.log_message("Tag bereits vorhanden", level='ERROR')
+            if messagebox.askyesno("Playlist ersetzen?", "Der Tag ist bereits vorhanden. Möchten Sie die Playlist ersetzen?"):
+                self.override_playlist(playlist_config, new_tag, new_playlist)
+                self.gui.log_message("Link überschrieben", level='SUCCESS')
+            else:
+                self.gui.log_message("Playlist nicht überschrieben", level='INFO')
+
             return
 
         if "PLAYLIST" not in playlist_config:
@@ -192,12 +198,17 @@ class SettingsWindow(tk.Toplevel):
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(playlist_config, f, ensure_ascii=False, indent=4)
 
-            self.gui.log_message("Tag und Link gespeichert", level='INFO')
+            self.gui.log_message("Tag und Link gespeichert", level='SUCCESS')
 
         self.tag_entry.delete(0, 'end')
         self.link_entry.delete(0, 'end')
 
         self.tag_entry.focus()
+
+    def override_playlist(self, playlist_config, new_tag, new_playlist):
+        playlist_config["PLAYLIST"][new_tag] = new_playlist
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(playlist_config, f, ensure_ascii=False, indent=4)
 
 class Resize_Window(tk.Toplevel):
     def __init__(self, master, gui_ref):
@@ -247,11 +258,11 @@ class Resize_Window(tk.Toplevel):
         new_height = self.height_entry.get().strip()
 
         if not new_width.isdigit() or not new_height.isdigit():
-            self.gui.log_message("Error: Ungültige Eingabe", level='ERROR')
+            self.gui.log_message("Ungültige Eingabe", level='ERROR')
             return
 
         self.gui.root.geometry(f"{new_width}x{new_height}")
-        self.gui.log_message("Fenstergröße geändert", level='INFO')
+        self.gui.log_message("Fenstergröße geändert", level='SUCCESS')
 
         self.width_entry.delete(0, 'end')
         self.height_entry.delete(0, 'end')
