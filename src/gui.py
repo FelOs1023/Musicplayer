@@ -14,7 +14,7 @@ class GUI:
 
         self.root = tk.Tk()
         self.root.title(title)
-        self.root.geometry("450x300")
+        self.root.geometry("450x270")
 
         self.is_shown = True
         self.menu()
@@ -92,12 +92,20 @@ class GUI:
             self.is_shown=True
 
     def Hotkey(self):
+        if hasattr(self, "current_hotkey"):
+            try:
+                keyboard.remove_hotkey(self.current_hotkey)
+            except Exception:
+                pass
+
         self.config = self.load_config()
+        hotkey = self.config.get("HOTKEYS", {}).get("hide", "f11")
+        keyboard.add_hotkey(hotkey, self.show_window, suppress=True)
 
-        if keyboard.is_pressed(self.config.get("hide", "F11")):
-            self.show_window()
-
+        self.current_hotkey = hotkey
         self.root.after(75, self.Hotkey)
+
+        
 
     #Button Funktionen
     def log_message(self, message, level='INFO'):
@@ -112,13 +120,13 @@ class GUI:
 class LogSection():
     def __init__(self, master: tk.Widget):
         self.log = scrolledtext.ScrolledText(master,
-                                             height=10, width=15,
+                                             height=8, width=15,
                                              state='disabled',
                                              wrap='word',
                                              bg='black', fg='white')
         self.log.pack(side='bottom',
                       pady=5, padx=5,
-                      anchor="center",
+                      anchor="n",
                       fill=tk.X, expand=True)
         self.log_tags()
         
@@ -141,7 +149,7 @@ class SettingsWindow(tk.Toplevel):
     def __init__(self, master, gui_ref):
         super().__init__(master)
         self.title("Settings")
-        self.geometry("300x370")
+        self.geometry("300x250")
         self.gui = gui_ref
         
         ttk.Label(self, text="Add Playlist", font=("Arial", 12)).pack(pady=10,
@@ -152,7 +160,7 @@ class SettingsWindow(tk.Toplevel):
                                                                                           padx=5,
                                                                                           anchor="nw")
         
-        ttk.Label(self, text="Change Hotkeys", font=("Arial", 12)).pack(pady=10,
+        ttk.Label(self, text="Change Hide Hotkey", font=("Arial", 12)).pack(pady=10,
                                                                         padx=5,
                                                                         anchor="nw")
         
@@ -256,12 +264,48 @@ class Setting_Hotkeys(tk.Toplevel):
     def __init__(self, master, gui_ref):
         super().__init__(master)
         self.title("Change Hotkeys")
-        self.geometry("300x300")
+        self.geometry("300x225")
         self.gui = gui_ref
     
     def changing_hotkeys(self):
-        ttk.Label(self, text="Change Hotkeys", font=("Arial", 14)).pack(pady=15,padx=5,anchor="nw")
+        ttk.Label(self, text="Press Button to change Hotkey", font=("Arial", 12)).pack(pady=5,
+                                                                                       padx=5,
+                                                                                       anchor="n")
 
+        ttk.Button(self, text="Change Hide Hotkey", command=self.save_hotkeys).pack(pady=5,
+                                                                                    padx=5,
+                                                                                    anchor="n")
+
+    def save_hotkeys(self):
+        hotkey = keyboard.read_hotkey(suppress=True)
+        hotkey = self.convert_modifiers(hotkey)
+        self.gui.log_message(f"Hotkey detectet: {hotkey}", level='DEBUG')
+
+        self.config = self.gui.load_config()
+
+        if "HOTKEYS" not in self.config:
+            self.config["HOTKEYS"] = {}
+        self.config["HOTKEYS"]["hide"] = hotkey
+
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(self.config, f, indent=4)
+
+        self.gui.log_message("New Hotkey saved", level='SUCCESS')
+
+        self.destroy()
+
+    def convert_modifiers(self, hotkey: str) -> str:
+        modifiers = {
+            "strg": "ctrl",
+            "umschalt": "shift",
+            "alt": "alt",
+            "win": "windows",
+            "cmd": "windows"
+        }
+
+        parts = hotkey.lower().split('+')
+        parts = [modifiers.get(part, part) for part in parts]
+        return '+'.join(parts)
 
 
 class Resize_Window(tk.Toplevel):
