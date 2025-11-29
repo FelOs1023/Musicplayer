@@ -5,7 +5,8 @@ import json, os, keyboard, threading
 #import config
 from datetime import datetime
 
-CONFIG_FILE = "Musicplayer/data/playlist.json"
+PLAYLIST_FILE = "Musicplayer/data/playlist.json"
+CONFIG_FILE = "Musicplayer/config/config.json"
 
 class GUI:
     def __init__(self, command_handler, title="Command Window"):
@@ -16,7 +17,9 @@ class GUI:
         self.root.geometry("450x300")
 
         self.is_shown = True
+        self.menu()
 
+    def menu(self):
         #Eingabe Feld für Befehle
         self.entry = ttk.Entry(self.root, width=35)
         self.entry.pack(pady=10, padx=120, side=tk.TOP, fill=tk.X)
@@ -72,6 +75,13 @@ class GUI:
     def run(self):
         self.root.mainloop()
 
+    def load_config(self):
+        if os.path.exists(CONFIG_FILE):
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        else:
+            return {}
+
     #Versteckt das Fenster oder lässt es wieder erscheinen (Fenster ist während es versteckt ist NICHT im Task-Manager sichtbar)
     def show_window(self):
         if self.is_shown:
@@ -82,7 +92,9 @@ class GUI:
             self.is_shown=True
 
     def Hotkey(self):
-        if keyboard.is_pressed('F11'):  #3
+        self.config = self.load_config()
+
+        if keyboard.is_pressed(self.config.get("hide", "F11")):
             self.show_window()
 
         self.root.after(75, self.Hotkey)
@@ -93,7 +105,7 @@ class GUI:
 
     def open_settings_window(self):
         SettingsWindow(self.root, self)
-
+    
     def open_resize_window(self):
         Resize_Window(self.root, self)
 
@@ -131,7 +143,37 @@ class SettingsWindow(tk.Toplevel):
         self.title("Settings")
         self.geometry("300x370")
         self.gui = gui_ref
+        
+        ttk.Label(self, text="Add Playlist", font=("Arial", 12)).pack(pady=10,
+                                                                 padx=5,
+                                                                 anchor="nw")
+        
+        ttk.Button(self, text="Add Playlist", command=self.open_add_playlist_window).pack(pady=4,
+                                                                                          padx=5,
+                                                                                          anchor="nw")
+        
+        ttk.Label(self, text="Change Hotkeys", font=("Arial", 12)).pack(pady=10,
+                                                                        padx=5,
+                                                                        anchor="nw")
+        
+        ttk.Button(self, text="Hotkeys", command=self.open_change_hotkeys_window).pack(pady=4,
+                                                                                       padx=5,
+                                                                                       anchor="nw")
+        
+    def open_add_playlist_window(self):
+        Setting_Playlist(self, self.gui).adding_playlist()
 
+    def open_change_hotkeys_window(self):
+        Setting_Hotkeys(self, self.gui).changing_hotkeys()
+        
+class Setting_Playlist(tk.Toplevel):
+    def __init__(self, master, gui_ref):
+        super().__init__(master)
+        self.title("Add Playlist")
+        self.geometry("350x250")
+        self.gui = gui_ref
+
+    def adding_playlist(self):
         ttk.Label(self, text="Add Playlist", font=("Arial", 14)).pack(pady=8,
                                                                       padx=5,
                                                                       anchor="n")
@@ -175,10 +217,10 @@ class SettingsWindow(tk.Toplevel):
             return
                 
         try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+            with open(PLAYLIST_FILE, "r", encoding="utf-8") as f:
                     playlist_config = json.load(f)
         except FileNotFoundError:
-                playlist_config = {"PLAYLIST": {}, "HOTKEYS": {}}
+                playlist_config = {"PLAYLIST": {}}
 
         if new_tag in playlist_config.get("PLAYLIST", {}):
             self.gui.log_message("Tag bereits vorhanden", level='ERROR')
@@ -195,7 +237,7 @@ class SettingsWindow(tk.Toplevel):
 
         playlist_config["PLAYLIST"][new_tag] = new_playlist
 
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        with open(PLAYLIST_FILE, "w", encoding="utf-8") as f:
             json.dump(playlist_config, f, ensure_ascii=False, indent=4)
 
             self.gui.log_message("Tag und Link gespeichert", level='SUCCESS')
@@ -207,8 +249,20 @@ class SettingsWindow(tk.Toplevel):
 
     def override_playlist(self, playlist_config, new_tag, new_playlist):
         playlist_config["PLAYLIST"][new_tag] = new_playlist
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+        with open(PLAYLIST_FILE, "w", encoding="utf-8") as f:
             json.dump(playlist_config, f, ensure_ascii=False, indent=4)
+
+class Setting_Hotkeys(tk.Toplevel):
+    def __init__(self, master, gui_ref):
+        super().__init__(master)
+        self.title("Change Hotkeys")
+        self.geometry("300x300")
+        self.gui = gui_ref
+    
+    def changing_hotkeys(self):
+        ttk.Label(self, text="Change Hotkeys", font=("Arial", 14)).pack(pady=15,padx=5,anchor="nw")
+
+
 
 class Resize_Window(tk.Toplevel):
     def __init__(self, master, gui_ref):
