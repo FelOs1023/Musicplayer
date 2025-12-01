@@ -24,7 +24,7 @@ class Music:
         self.player = self
 
     def start_browser(self):
-        #if not self.browser: -> 
+        #if not self.browser: #-> *
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch_persistent_context(
             user_data_dir=PROFILE_DIR,
@@ -122,6 +122,8 @@ class Music:
         return playlist_name, shuffle
     
     def music_command(self, command_input):
+        #self.player = self #-> *
+
         if command_input in ["stop", "exit", "beenden"] :
             print("Programm beendet")
             return
@@ -144,3 +146,9 @@ if __name__ == "__main__":
     gui_manager = gui.GUI(command_handler=player.music_command, music_instance=player, title="Music Player")
     gui_manager.run()
 
+
+'''*
+Both commants have something to do with the threading that would controll the actions.
+If one of them is implemented -> both have to be implemented.
+If you uncomment the (if not self.browser:) the program expects a different thread to have opened.
+If you uncomment the (self.player = self) that new thread is getting created but also takes more resources since with every command a new instance of Music is created.'''
