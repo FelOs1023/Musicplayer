@@ -138,9 +138,9 @@ class Music:
         if input_playlist_name:
             url = self.playlists[input_playlist_name]
             self.player.play_playlist(url, shuffle=input_shuffle)
-            gui_manager.log_message(f"Spiele: {input_playlist_name}", level='INFO')
+            gui_manager.log_message(f"Spiele: {input_playlist_name}\n", level='INFO')
         else:
-            gui_manager.log_message("Playlist nicht gefunden", level='ERROR')
+            gui_manager.log_message("Playlist nicht gefunden\n", level='ERROR')
 
 if __name__ == "__main__":
     player = Music()
