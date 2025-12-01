@@ -24,6 +24,7 @@ class Music:
         self.player = self
 
     def start_browser(self):
+        #if not self.browser: -> 
         self.playwright = sync_playwright().start()
         self.browser = self.playwright.chromium.launch_persistent_context(
             user_data_dir=PROFILE_DIR,
@@ -94,6 +95,15 @@ class Music:
             pyautogui.moveTo(ShrinkButton_Location)
             pyautogui.click()
 
+    #gibt die Ressourcen wieder frei
+    def stop_programm(self):
+        if self.browser:
+            self.browser.close()
+            self.browser = None
+        if self.playwright:
+            self.playwright.stop()
+            self.playwright = None
+
     def check_command(self, command: str):
         playlist_name = None
         shuffle = False
@@ -131,6 +141,6 @@ class Music:
 
 if __name__ == "__main__":
     player = Music()
-    gui_manager = gui.GUI(command_handler=player.music_command, title="Music Player")
+    gui_manager = gui.GUI(command_handler=player.music_command, music_instance=player, title="Music Player")
     gui_manager.run()
 

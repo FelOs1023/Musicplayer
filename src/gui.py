@@ -9,8 +9,9 @@ PLAYLIST_FILE = "Musicplayer/data/playlist.json"
 CONFIG_FILE = "Musicplayer/config/config.json"
 
 class GUI:
-    def __init__(self, command_handler, title="Command Window"):
+    def __init__(self, command_handler, music_instance, title="Command Window"):
         self.command_handler = command_handler
+        self.music_instance = music_instance
 
         self.root = tk.Tk()
         self.root.title(title)
@@ -31,7 +32,7 @@ class GUI:
         #Exit
         ttk.Button(self.root,
                   text="Exit",
-                  command=self.root.quit).pack(side="left",
+                  command=self.exit_program).pack(side="left",
                                                pady=10, padx=5,
                                                anchor=tk.NW,
                                                fill=tk.X, expand=True)
@@ -75,6 +76,10 @@ class GUI:
     def run(self):
         self.root.mainloop()
 
+    def exit_program(self):
+        self.root.after(0, self.music_instance.stop_programm)
+        self.root.quit()
+
     def load_config(self):
         if os.path.exists(CONFIG_FILE):
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
@@ -105,7 +110,6 @@ class GUI:
         self.current_hotkey = hotkey
         self.root.after(75, self.Hotkey)
 
-        
 
     #Button Funktionen
     def log_message(self, message, level='INFO'):
@@ -264,7 +268,7 @@ class Setting_Hotkeys(tk.Toplevel):
     def __init__(self, master, gui_ref):
         super().__init__(master)
         self.title("Change Hotkeys")
-        self.geometry("300x225")
+        self.geometry("300x100")
         self.gui = gui_ref
     
     def changing_hotkeys(self):
@@ -306,7 +310,6 @@ class Setting_Hotkeys(tk.Toplevel):
         parts = hotkey.lower().split('+')
         parts = [modifiers.get(part, part) for part in parts]
         return '+'.join(parts)
-
 
 class Resize_Window(tk.Toplevel):
     def __init__(self, master, gui_ref):
