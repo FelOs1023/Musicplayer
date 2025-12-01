@@ -20,6 +20,7 @@ class GUI:
         self.is_shown = True
         self.hide_warning = True
         self.menu()
+        self.log_tutorail()
 
     def menu(self):
         #Eingabe Feld für Befehle
@@ -125,6 +126,17 @@ class GUI:
         self.current_hotkey = hotkey
         self.root.after(75, self.Hotkey)
 
+    def log_tutorail(self):
+        tutorial_messages = [
+            "Welcome.",
+            "To add a playlist, go to Settings and click on 'Add Playlist'.",
+            "To play a playlist, type the tag in the searchbar and press Enter.",
+            "You can add 'shuffle' at the end of your command to play the playlist in shuffle mode.",
+            "Enter 'help' in the searchbar to see all available commands."
+        ]
+
+        for message in tutorial_messages:
+            self.log_message(message + "\n", level='INFO')
 
     #Button Funktionen
     def log_message(self, message, level='INFO'):
@@ -139,7 +151,7 @@ class GUI:
 class LogSection():
     def __init__(self, master: tk.Widget):
         self.log = scrolledtext.ScrolledText(master,
-                                             height=8, width=15,
+                                             height=10, width=15,
                                              state='disabled',
                                              wrap='word',
                                              bg='black', fg='white')
@@ -203,7 +215,7 @@ class SettingsWindow(tk.Toplevel):
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=4)
 
-        self.gui.log_message("Hide Popup setting updated", level='SUCCESS')
+        self.gui.log_message("Hide Popup setting updated\n", level='SUCCESS')
 
     def open_add_playlist_window(self):
         Setting_Playlist(self, self.gui).adding_playlist()
@@ -258,7 +270,7 @@ class Setting_Playlist(tk.Toplevel):
         new_playlist = self.link_entry.get().strip()
 
         if not new_tag and not new_playlist:
-            self.gui.log_message("Ungültige Eingabe", level='ERROR')
+            self.gui.log_message("Ungültige Eingabe\n", level='ERROR')
             return
                 
         try:
@@ -268,12 +280,12 @@ class Setting_Playlist(tk.Toplevel):
                 playlist_config = {"PLAYLIST": {}}
 
         if new_tag in playlist_config.get("PLAYLIST", {}):
-            self.gui.log_message("Tag bereits vorhanden", level='ERROR')
+            self.gui.log_message("Tag bereits vorhanden\n", level='ERROR')
             if messagebox.askyesno("Playlist ersetzen?", "Der Tag ist bereits vorhanden. Möchten Sie die Playlist ersetzen?"):
                 self.override_playlist(playlist_config, new_tag, new_playlist)
-                self.gui.log_message("Link überschrieben", level='SUCCESS')
+                self.gui.log_message("Link überschrieben\n", level='SUCCESS')
             else:
-                self.gui.log_message("Playlist nicht überschrieben", level='INFO')
+                self.gui.log_message("Playlist nicht überschrieben\n", level='INFO')
 
             return
 
@@ -285,7 +297,7 @@ class Setting_Playlist(tk.Toplevel):
         with open(PLAYLIST_FILE, "w", encoding="utf-8") as f:
             json.dump(playlist_config, f, ensure_ascii=False, indent=4)
 
-            self.gui.log_message("Tag und Link gespeichert", level='SUCCESS')
+            self.gui.log_message("Tag und Link gespeichert\n", level='SUCCESS')
 
         self.tag_entry.delete(0, 'end')
         self.link_entry.delete(0, 'end')
@@ -316,7 +328,7 @@ class Setting_Hotkeys(tk.Toplevel):
     def save_hotkeys(self):
         hotkey = keyboard.read_hotkey(suppress=True)
         hotkey = self.convert_modifiers(hotkey)
-        self.gui.log_message(f"Hotkey detectet: {hotkey}", level='DEBUG')
+        self.gui.log_message(f"Hotkey detectet: {hotkey}\n", level='DEBUG')
 
         self.config = self.gui.load_config()
 
@@ -327,7 +339,7 @@ class Setting_Hotkeys(tk.Toplevel):
         with open(CONFIG_FILE, "w", encoding="utf-8") as f:
             json.dump(self.config, f, indent=4)
 
-        self.gui.log_message("New Hotkey saved", level='SUCCESS')
+        self.gui.log_message("New Hotkey saved\n", level='SUCCESS')
 
         self.destroy()
 
@@ -392,11 +404,11 @@ class Resize_Window(tk.Toplevel):
         new_height = self.height_entry.get().strip()
 
         if not new_width.isdigit() or not new_height.isdigit():
-            self.gui.log_message("Ungültige Eingabe", level='ERROR')
+            self.gui.log_message("Ungültige Eingabe\n", level='ERROR')
             return
 
         self.gui.root.geometry(f"{new_width}x{new_height}")
-        self.gui.log_message("Fenstergröße geändert", level='SUCCESS')
+        self.gui.log_message("Fenstergröße geändert\n", level='SUCCESS')
 
         self.width_entry.delete(0, 'end')
         self.height_entry.delete(0, 'end')
@@ -405,7 +417,7 @@ class Resize_Window(tk.Toplevel):
 
     def reset_resize(self):
         self.gui.root.geometry("450x300")
-        self.gui.log_message("Fenstergröße auf Standard zurückgesetzt", level='INFO')
+        self.gui.log_message("Fenstergröße auf Standard zurückgesetzt\n", level='INFO')
         self.width_entry.delete(0, 'end')
         self.height_entry.delete(0, 'end')
 
@@ -413,7 +425,7 @@ class Resize_Window(tk.Toplevel):
 
 if __name__ == "__main__":
     def dummy_command_handler(cmd):
-        gui.log_message(f"{cmd}", level='INFO')
+        gui.log_message(f"{cmd}\n", level='INFO')
 
     gui = GUI(command_handler=dummy_command_handler, title="Test Command Window")
     gui.run()
