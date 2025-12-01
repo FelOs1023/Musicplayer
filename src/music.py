@@ -1,6 +1,5 @@
 from playwright.sync_api import sync_playwright
-import time, os, pyautogui, threading, json
-#import config
+import time, os, pyautogui, json
 import gui
 
 CONFIG_FILE = "Musicplayer/data/playlist.json"
@@ -25,16 +24,15 @@ class Music:
         self.player = self
 
     def start_browser(self):
-        if not self.browser:
-            self.playwright = sync_playwright().start()
-            self.browser = self.playwright.chromium.launch_persistent_context(
-                user_data_dir=PROFILE_DIR,
-                headless=False,
-                args=[
-                    "--start-maximized",
-                    "--disable-blink-features=AutomationControlled"
-                ]
-            )
+        self.playwright = sync_playwright().start()
+        self.browser = self.playwright.chromium.launch_persistent_context(
+            user_data_dir=PROFILE_DIR,
+            headless=False,
+            args=[
+                "--start-maximized",
+                "--disable-blink-features=AutomationControlled"
+            ]
+        )
     
     def play_playlist(self, url: str, shuffle: bool= False):
         self.start_browser()
