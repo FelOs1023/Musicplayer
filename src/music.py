@@ -21,19 +21,19 @@ class Music:
         self.playwright = None
         self.browser = None
         self.playlists = load_playlist()
-        self.player = self
+        #self.player = self -> *
 
     def start_browser(self):
-        #if not self.browser: #-> *
-        self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch_persistent_context(
-            user_data_dir=PROFILE_DIR,
-            headless=False,
-            args=[
-                "--start-maximized",
-                "--disable-blink-features=AutomationControlled"
-            ]
-        )
+        if not self.browser: #-> *
+            self.playwright = sync_playwright().start()
+            self.browser = self.playwright.chromium.launch_persistent_context(
+                user_data_dir=PROFILE_DIR,
+                headless=False,
+                args=[
+                    "--start-maximized",
+                    "--disable-blink-features=AutomationControlled"
+                ]
+            )
     
     def play_playlist(self, url: str, shuffle: bool= False):
         self.start_browser()
@@ -122,9 +122,10 @@ class Music:
         return playlist_name, shuffle
     
     def music_command(self, command_input):
-        #self.player = self #-> *
+        self.player = self #-> *
 
         if command_input in ["stop", "exit", "beenden"] :
+            self.stop_programm()
             print("Programm beendet")
             return
         
@@ -151,4 +152,5 @@ if __name__ == "__main__":
 Both commants have something to do with the threading that would controll the actions.
 If one of them is implemented -> both have to be implemented.
 If you uncomment the (if not self.browser:) the program expects a different thread to have opened.
-If you uncomment the (self.player = self) that new thread is getting created but also takes more resources since with every command a new instance of Music is created.'''
+If you uncomment the (self.player = self) that new thread is getting created but also takes more resources since with every command a new instance of Music is created.
+If both are uncommented the (self.player = self) in the __init__ has to be removed since it would create a conflict.'''

@@ -9,15 +9,16 @@ PLAYLIST_FILE = "Musicplayer/data/playlist.json"
 CONFIG_FILE = "Musicplayer/config/config.json"
 
 class GUI:
-    def __init__(self, command_handler, music_instance, title="Command Window"):
+    def __init__(self, command_handler, title="Command Window"):
         self.command_handler = command_handler
-        self.music_instance = music_instance
+        #self.music_instance = music_instance
 
         self.root = tk.Tk()
         self.root.title(title)
         self.root.geometry("450x270")
 
         self.is_shown = True
+        self.hide_warning = True
         self.menu()
 
     def menu(self):
@@ -77,7 +78,7 @@ class GUI:
         self.root.mainloop()
 
     def exit_program(self):
-        self.root.after(0, self.music_instance.stop_programm)
+        self.command_handler("stop")
         self.root.quit()
 
     def load_config(self):
@@ -92,9 +93,23 @@ class GUI:
         if self.is_shown:
             self.root.withdraw()
             self.is_shown = False
+            self.show_hide_warning()
         else:
             self.root.deiconify()
             self.is_shown=True
+
+    def show_hide_warning(self):
+        config = self.load_config()
+        show_popup = config.get("SHOW_HIDE_POPUP", True)
+
+        if show_popup and self.hide_warning:
+            hotkey = config.get("HOTKEYS", {}).get("hide", "f11")
+            messagebox.showinfo("Info", f"Das Fenster wurde versteckt.\nDrücken Sie '{hotkey}' um es wieder anzuzeigen.\nPop-Up kann in den Settings geändert werden.")
+
+            config["SHOW_HIDE_POPUP"] = False
+            self.hide_warning = False
+            with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+                json.dump(config, f, indent=4)
 
     def Hotkey(self):
         if hasattr(self, "current_hotkey"):
@@ -155,6 +170,13 @@ class SettingsWindow(tk.Toplevel):
         self.title("Settings")
         self.geometry("300x250")
         self.gui = gui_ref
+
+        self.show_popup_var = tk.BooleanVar(value=self.gui.load_config().get("SHOW_HIDE_POPUP", True))
+        ttk.Checkbutton(self, text="Show Hide Popup",
+                        variable=self.show_popup_var,
+                        command=self.toggle_hide_popup).pack(pady=5,
+                                                             padx=5,
+                                                             anchor="nw")
         
         ttk.Label(self, text="Add Playlist", font=("Arial", 12)).pack(pady=10,
                                                                  padx=5,
@@ -172,6 +194,17 @@ class SettingsWindow(tk.Toplevel):
                                                                                        padx=5,
                                                                                        anchor="nw")
         
+    def toggle_hide_popup(self):
+        config = self.gui.load_config()
+        config["SHOW_HIDE_POPUP"] = self.show_popup_var.get()
+
+        self.gui.hide_warning = self.show_popup_var.get()
+
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=4)
+
+        self.gui.log_message("Hide Popup setting updated", level='SUCCESS')
+
     def open_add_playlist_window(self):
         Setting_Playlist(self, self.gui).adding_playlist()
 
