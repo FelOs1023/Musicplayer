@@ -121,6 +121,17 @@ class Music:
         for name in playlist_name.keys():
             gui_manager.log_message(f"- {name}", level='INFO')
 
+    def all_help(self):
+        gui_manager.log_message("list, playlists, liste, tags", level='INFO')
+        gui_manager.log_message("-To see all available playlist tags\n", level='INFO')
+
+        gui_manager.log_message("tutorial, anleitung, start, erklärung", level='INFO')
+        gui_manager.log_message("-Brings up the starting Tutorial again\n", level='INFO')
+
+        gui_manager.log_message("open, öffnen, browser", level='INFO')
+        gui_manager.log_message("-Opens the browser window again\n", level='INFO')
+
+
     def check_command(self, command: str):
         playlist_name = None
         shuffle = False
@@ -147,7 +158,7 @@ class Music:
             return
         
         if command_input in ["help", "option", "commands", "eingabe", "hilfe"]:
-            self.help_list()
+            self.all_help()
             return
 
         if command_input in ["list", "playlists", "liste", "tags"]:
