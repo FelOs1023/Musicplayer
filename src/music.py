@@ -3,28 +3,28 @@ import time, os, pyautogui, json
 import gui
 
 CONFIG_FILE = "Musicplayer/data/playlist.json"
-
 PROFILE_DIR = os.path.join("Musicplayer", "data", "ytmusic_profile")
+
 os.makedirs(PROFILE_DIR, exist_ok=True)
 
 def load_playlist():
     try:
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-            daten = json.load(f)
+            playlist_data = json.load(f)
     except FileNotFoundError:
         return {}
     
-    return daten.get("PLAYLIST", {})
+    return playlist_data.get("PLAYLIST", {})
 
 class Music:
     def __init__(self):
         self.playwright = None
         self.browser = None
         self.playlists = load_playlist()
-        #self.player = self -> *
+        self.player = self #-> *
 
     def start_browser(self):
-        if not self.browser: #-> *
+        #if not self.browser: #-> *
             self.playwright = sync_playwright().start()
             self.browser = self.playwright.chromium.launch_persistent_context(
                 user_data_dir=PROFILE_DIR,
@@ -52,8 +52,6 @@ class Music:
             self.shrink()
             time.sleep(1)
             self.player_window()
-
-        time.sleep(3)
     
     def normal_play(self):
         PlayButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayButton.png", confidence=.8)
@@ -95,14 +93,33 @@ class Music:
             pyautogui.moveTo(ShrinkButton_Location)
             pyautogui.click()
 
+
+    #has some Problems
     #gibt die Ressourcen wieder frei
     def stop_programm(self):
         if self.browser:
-            self.browser.close()
-            self.browser = None
+            try:
+                self.browser.close()  # Schließt den Browser
+            except Exception as e:
+                print(f"Fehler beim Schließen des Browsers: {e}")
+            finally:
+                self.browser = None
         if self.playwright:
-            self.playwright.stop()
-            self.playwright = None
+            try:
+                self.playwright.stop()  # Stoppt Playwright
+            except Exception as e:
+                print(f"Fehler beim Stoppen von Playwright: {e}")
+            finally:
+                self.playwright = None
+
+    def safe_stop(self):
+        gui_manager.root.after(0, self.stop_programm)
+
+
+    def help_list(self):
+        playlist_name = load_playlist()
+        for name in playlist_name.keys():
+            gui_manager.log_message(f"- {name}", level='INFO')
 
     def check_command(self, command: str):
         playlist_name = None
@@ -122,15 +139,30 @@ class Music:
         return playlist_name, shuffle
     
     def music_command(self, command_input):
-        self.player = self #-> *
+        #self.player = self #-> *
 
         if command_input in ["stop", "exit", "beenden"] :
-            self.stop_programm()
+            self.safe_stop()
             print("Programm beendet")
             return
         
         if command_input in ["help", "option", "commands", "eingabe", "hilfe"]:
-            pass
+            self.help_list()
+            return
+
+        if command_input in ["list", "playlists", "liste", "tags"]:
+            gui_manager.log_message("Verfügbare Playlists:", level='INFO')
+            self.help_list()
+            return
+        
+        if command_input in ["tutorial", "anleitung", "start", "erklärung"]:
+            gui_manager.log_tutorail()
+            return
+        
+        if command_input in ["open", "öffnen", "browser"]:
+            self.open_browser()
+            gui_manager.log_message("Browser geöffnet\n", level='INFO')
+            return
         
         #Wirft den Input durch check_command und gibt das Ergebnis in die neuen Variablen
         input_playlist_name, input_shuffle = self.player.check_command(command_input)
@@ -144,7 +176,7 @@ class Music:
 
 if __name__ == "__main__":
     player = Music()
-    gui_manager = gui.GUI(command_handler=player.music_command, music_instance=player, title="Music Player")
+    gui_manager = gui.GUI(command_handler=player.music_command, title="Music Player")
     gui_manager.run()
 
 
