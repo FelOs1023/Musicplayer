@@ -272,7 +272,14 @@ class Setting_Playlist(tk.Toplevel):
         if not new_tag and not new_playlist:
             self.gui.log_message("Ungültige Eingabe\n", level='ERROR')
             return
-                
+        
+        self.config = self.gui.load_config()
+        all_comments = self.config.get("ALL_COMMENTS", [])
+        
+        if new_tag in all_comments:
+            self.gui.log_message("Tag ist ein reserviertes Wort\n", level='ERROR')
+            return
+        
         try:
             with open(PLAYLIST_FILE, "r", encoding="utf-8") as f:
                     playlist_config = json.load(f)
