@@ -2,7 +2,6 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import scrolledtext, messagebox, simpledialog, Toplevel
 import json, os, keyboard, threading
-#import config
 from datetime import datetime
 
 PLAYLIST_FILE = "Musicplayer/data/playlist.json"
@@ -335,7 +334,7 @@ class Setting_Hotkeys(tk.Toplevel):
     def save_hotkeys(self):
         hotkey = keyboard.read_hotkey(suppress=True)
         hotkey = self.convert_modifiers(hotkey)
-        self.gui.log_message(f"Hotkey detectet: {hotkey}\n", level='DEBUG')
+        self.gui.log_message(f"Hotkey detectet: {hotkey}\n", level='INFO')
 
         self.config = self.gui.load_config()
 

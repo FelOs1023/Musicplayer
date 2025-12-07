@@ -79,7 +79,7 @@ class Music:
         if Player_Location:
             center = pyautogui.center(Player_Location)
             pyautogui.moveTo(center)
-            pyautogui.click()
+            #pyautogui.click()
 
     def open_browser(self):
         Browser_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/Chromium.png", confidence=.8)
@@ -99,14 +99,14 @@ class Music:
     def stop_programm(self):
         if self.browser:
             try:
-                self.browser.close()  # Schließt den Browser
+                self.browser.close()
             except Exception as e:
                 print(f"Fehler beim Schließen des Browsers: {e}")
             finally:
                 self.browser = None
         if self.playwright:
             try:
-                self.playwright.stop()  # Stoppt Playwright
+                self.playwright.stop()
             except Exception as e:
                 print(f"Fehler beim Stoppen von Playwright: {e}")
             finally:
@@ -120,6 +120,7 @@ class Music:
         playlist_name = load_playlist()
         for name in playlist_name.keys():
             gui_manager.log_message(f"- {name}", level='INFO')
+
 
     def all_help(self):
         gui_manager.log_message("list, playlists, liste, tags", level='INFO')
@@ -191,7 +192,8 @@ if __name__ == "__main__":
     gui_manager.run()
 
 
-'''*
+'''
+*
 Both commants have something to do with the threading that would controll the actions.
 If one of them is implemented -> both have to be implemented.
 If you uncomment the (if not self.browser:) the program expects a different thread to have opened.
