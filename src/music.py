@@ -52,6 +52,11 @@ class Music:
             self.shrink()
             time.sleep(1)
             self.player_window()
+
+    def open_log_in(self):
+        self.start_browser()
+        page = self.browser.new_page()
+        page.goto("https://music.youtube.com")
     
     def normal_play(self):
         PlayButton_Location = pyautogui.locateOnScreen("Musicplayer/assets/images/PlayButton.png", confidence=.8)
@@ -167,13 +172,19 @@ class Music:
             self.help_list()
             return
         
-        if command_input in ["tutorial", "anleitung", "start", "erklärung"]:
+        if command_input in ["tutorial", "anleitung", "start"]:
             gui_manager.log_tutorail()
             return
         
         if command_input in ["open", "öffnen", "browser"]:
             self.open_browser()
             gui_manager.log_message("Browser geöffnet\n", level='INFO')
+            return
+        
+        if command_input in ["login", "anmelden", "einloggen", "test"]:
+            self.open_log_in()
+            gui_manager.log_message("Login Seite geöffnet\n", level='INFO')
+            gui_manager.log_message("Please log in for best use", level='INFO')
             return
         
         #Wirft den Input durch check_command und gibt das Ergebnis in die neuen Variablen
