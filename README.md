@@ -1,5 +1,6 @@
 # Musicplayer
 Little program to open a browser to play music. Currently only compatible with ytmusic. 
+
 The (planned) main will open up a GUI. First action would be to add a new Playlist and give it a tag, with which the playlist gets chosen.
 After at least one is added, you can then type said tag in the "searchbar", add if you want the playlist shuffled, press enter and the browser gets opened.
 
