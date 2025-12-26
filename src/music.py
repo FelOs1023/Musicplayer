@@ -126,7 +126,6 @@ class Music:
         for name in playlist_name.keys():
             gui_manager.log_message(f"- {name}", level='INFO')
 
-
     def all_help(self):
         gui_manager.log_message("list, playlists, liste, tags", level='INFO')
         gui_manager.log_message("-To see all available playlist tags\n", level='INFO')

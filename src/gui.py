@@ -179,7 +179,7 @@ class SettingsWindow(tk.Toplevel):
     def __init__(self, master, gui_ref):
         super().__init__(master)
         self.title("Settings")
-        self.geometry("300x250")
+        self.geometry("300x270")
         self.gui = gui_ref
 
         self.show_popup_var = tk.BooleanVar(value=self.gui.load_config().get("SHOW_HIDE_POPUP", True))
@@ -190,12 +190,18 @@ class SettingsWindow(tk.Toplevel):
                                                              anchor="nw")
         
         ttk.Label(self, text="Add Playlist", font=("Arial", 12)).pack(pady=10,
-                                                                 padx=5,
-                                                                 anchor="nw")
+                                                                      padx=5,
+                                                                      anchor="nw")
         
-        ttk.Button(self, text="Add Playlist", command=self.open_add_playlist_window).pack(pady=4,
-                                                                                          padx=5,
-                                                                                          anchor="nw")
+        ttk.Button(self, text="Add", command=self.open_add_playlist_window).pack(pady=4,
+                                                                                 padx=5,
+                                                                                 anchor="nw")
+        
+        ttk.Label(self, text="Delete Playlist", font=("Arial", 12)).pack(pady=10,
+                                                                         padx=5,
+                                                                         anchor="nw")
+        
+        ttk.Button(self, text="Delete", command=self.open_delete_playlist_window).pack(pady=4,padx=5,anchor="nw")
         
         ttk.Label(self, text="Change Hide Hotkey", font=("Arial", 12)).pack(pady=10,
                                                                         padx=5,
@@ -221,6 +227,9 @@ class SettingsWindow(tk.Toplevel):
 
     def open_change_hotkeys_window(self):
         Setting_Hotkeys(self, self.gui).changing_hotkeys()
+
+    def open_delete_playlist_window(self):
+        Setting_delete_Playlist(self, self.gui).checkboxes()
         
 class Setting_Playlist(tk.Toplevel):
     def __init__(self, master, gui_ref):
@@ -314,6 +323,82 @@ class Setting_Playlist(tk.Toplevel):
         playlist_config["PLAYLIST"][new_tag] = new_playlist
         with open(PLAYLIST_FILE, "w", encoding="utf-8") as f:
             json.dump(playlist_config, f, ensure_ascii=False, indent=4)
+
+class Setting_delete_Playlist(tk.Toplevel):
+    def __init__(self, master, gui_ref):
+        super().__init__(master)
+        self.title("Delete Playlist")
+        self.geometry("250x300")
+        self.gui = gui_ref
+
+        self.canvas = tk.Canvas(self)
+        self.canvas.bind("<Enter>", self._bound_to_mousewheel)
+        self.canvas.bind("<Leave>", self._bound_to_mousewheel)
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+    def _bound_to_mousewheel(self, event):
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _unbound_to_mousewheel(self, event):
+        self.canvas.unbind_all("<MouseWheel>")
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+
+    def checkboxes(self):
+        try:
+            with open(PLAYLIST_FILE, "r", encoding="utf-8") as f:
+                playlist_config = json.load(f)
+        except FileNotFoundError:
+            playlist_config = {"PLAYLIST": {}}
+
+        self.checkbox_vars = []
+
+        for tag in playlist_config.get("PLAYLIST", {}):
+            var = tk.BooleanVar(value=False)
+            checkbox = ttk.Checkbutton(self.scrollable_frame, text=tag, variable=var)
+            checkbox.pack(pady=2, padx=5, anchor="nw")
+            self.checkbox_vars.append(var)
+
+        ttk.Button(self.scrollable_frame, text="Delete selected", command=self.delete_selected).pack(pady=10,padx=5,side="right",anchor="ne")
+
+        ttk.Button(self.scrollable_frame, text="Close", command=self.destroy).pack(pady=10, padx=5,side="left",anchor="nw")
+
+
+    def delete_selected(self):
+        try:
+            with open(PLAYLIST_FILE, "r", encoding="utf-8") as f:
+                playlist_config = json.load(f)
+        except FileNotFoundError:
+            playlist_config = {"PLAYLIST": {}}
+
+        options_to_delete = []
+
+        for var, tag in zip(self.checkbox_vars, playlist_config.get("PLAYLIST", {})):
+            if var.get():
+                options_to_delete.append(tag)
+
+        if not options_to_delete:
+            self.gui.log_message("Keine Playlists ausgewählt\n", level='ERROR')
+            return
+
+        for tag in options_to_delete:
+            if tag in playlist_config["PLAYLIST"]:
+                del playlist_config["PLAYLIST"][tag]
+
+        with open(PLAYLIST_FILE, "w", encoding="utf-8") as f:
+            json.dump(playlist_config, f, ensure_ascii=False, indent=4)
+
+        self.gui.log_message("Ausgewählte Playlists gelöscht\n", level='SUCCESS')
 
 class Setting_Hotkeys(tk.Toplevel):
     def __init__(self, master, gui_ref):
