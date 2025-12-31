@@ -157,7 +157,7 @@ class LogSection():
         self.log.pack(side='bottom',
                       pady=5, padx=5,
                       anchor="n",
-                      fill=tk.X, expand=True)
+                      fill=tk.BOTH, expand=True)
         self.log_tags()
         
     def log_tags(self):
