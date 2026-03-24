@@ -239,39 +239,24 @@ class Setting_Playlist(tk.Toplevel):
         self.gui = gui_ref
 
     def adding_playlist(self):
-        ttk.Label(self, text="Add Playlist", font=("Arial", 14)).pack(pady=8,
-                                                                      padx=5,
-                                                                      anchor="n")
+        ttk.Label(self, text="Add Playlist", font=("Arial", 14)).pack(pady=8,padx=5,anchor="n")
 
         #Tag
-        ttk.Label(self,text="Music Tag", font=("Arial", 12)).pack(pady=8,
-                                                                  padx=15,
-                                                                  anchor="nw")
+        ttk.Label(self,text="Music Tag", font=("Arial", 12)).pack(pady=8,padx=15,anchor="nw")
 
         self.tag_entry = ttk.Entry(self, width=25)
-        self.tag_entry.pack(pady=4,
-                            padx=10,
-                            anchor="nw")
+        self.tag_entry.pack(pady=4,padx=10,anchor="nw")
         
         #Link
-        ttk.Label(self, text="Music Link", font=("Arial", 12)).pack(pady=8,
-                                                                    padx=15,
-                                                                    anchor="nw")
+        ttk.Label(self, text="Music Link", font=("Arial", 12)).pack(pady=8,padx=15,anchor="nw")
         
         self.link_entry = ttk.Entry(self, width=40)
-        self.link_entry.pack(pady=4,
-                             padx=10,
-                             anchor="nw")
+        self.link_entry.pack(pady=4,padx=10,anchor="nw")
         
         #Buttons
-        ttk.Button(self, text="Safe", command=self.save_added).pack(pady=10,padx=5,
-                                                                    side="right",
-                                                                    anchor="n")
+        ttk.Button(self, text="Safe", command=self.save_added).pack(pady=10,padx=5,side="right",anchor="n")
         
-        ttk.Button(self, text="Close", command=self.destroy).pack(pady=10,
-                                                                  padx=5,
-                                                                  side="left",
-                                                                  anchor="n")
+        ttk.Button(self, text="Close", command=self.destroy).pack(pady=10,padx=5,side="left",anchor="n")
 
     def save_added(self):
         new_tag = self.tag_entry.get().strip()
